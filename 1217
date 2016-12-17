@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.sql.Statement; 
  
 public class jdbcmysql { 
+  public static String [][] arr = new String [50][4];
+  //name,robot1  password,1001  gender,1  age,59 
   private Connection con = null; //Database objects 
   //連接object 
   private Statement stat = null; 
@@ -15,33 +17,40 @@ public class jdbcmysql {
   private PreparedStatement pst = null; 
   //執行,傳入之sql為預儲之字申,需要傳入變數之位置 
   //先利用?來做標示 
-  
-  private String dropdbSQL = "DROP TABLE User "; 
-  
-  private String createdbSQL = "CREATE TABLE User (" + 
+  private String dropdbSQL = "DROP TABLE ";
+  public static String Table_User = "user";
+  public static String Table_bulletin_board = "bulletin_board";
+  private static String createdbSQL_user = "CREATE TABLE User (" + 
     "    id     INTEGER " + 
     "  , name    VARCHAR(20) " + 
-    "  , passwd  VARCHAR(20))"; 
+    "  , passwd  VARCHAR(20)" +
+    "  , gender INTEGER" +
+    "  , age 	INTEGER" + 
+    "  , friend INTEGER)"; 
+  private static String createdbSQL_bulletin_board = "CREATE TABLE bulletin_board ("+
+	"	Author VARCHAR(20) "+
+	"	, writings VARCHAR(20) " +
+	"	, likes INTEGER)";
   
-  private String insertdbSQL = "insert into User(id,name,passwd) " + 
-      "select ifNULL(max(id),0)+1,?,? FROM User"; 
-  
+  private String insertdbSQL = "insert into user(id,name,passwd,gender,age,friend) " + 
+      "select ifNULL(max(id),0)+1,?,?,?,?,0 FROM User"; 
+  private String insertboard = "insert into bulletin_board(Author,writings,likes) " + 
+      "VALUES (?,?,?) ";
   private String selectSQL = "select * from User "; 
-  
+  private String creat_user = "CREATE USER '?'@'localhost IDENRIFIED BY '?' "+
+		  "GRANT ALL PRIVILEGES ON test.* TO '?'@'localhost'";
   public jdbcmysql() 
   { 
     try { 
       Class.forName("com.mysql.jdbc.Driver"); 
       //註冊driver 
       con = DriverManager.getConnection( 
-      "jdbc:mysql://localhost/test?useUnicode=true&characterEncoding=Big5", 
-      "root","12345"); 
-      //取得connection
- 
+      "jdbc:mysql://localhost/test?useUnicode=true&characterEncoding=Big5",
+      "root",""); 
+      //取得connection 
 //jdbc:mysql://localhost/test?useUnicode=true&characterEncoding=Big5
 //localhost是主機名,test是database名
-//useUnicode=true&characterEncoding=Big5使用的編碼 
-      
+//useUnicode=true&characterEncoding=Big5使用的編碼       
     } 
     catch(ClassNotFoundException e) 
     { 
@@ -54,12 +63,12 @@ public class jdbcmysql {
   } 
   //建立table的方式 
   //可以看看Statement的使用方式 
-  public void createTable() 
+  public void createTable(String table) 
   { 
     try 
     { 
       stat = con.createStatement(); 
-      stat.executeUpdate(createdbSQL); 
+      stat.executeUpdate(table); 
     } 
     catch(SQLException e) 
     { 
@@ -70,16 +79,19 @@ public class jdbcmysql {
       Close(); 
     } 
   } 
+ 
   //新增資料 
   //可以看看PrepareStatement的使用方式 
-  public void insertTable( String name,String passwd) 
+  public void insertTable(String name,String passwd,int gender,int age) //
   { 
     try 
     { 
-      pst = con.prepareStatement(insertdbSQL); 
-      
+      pst = con.prepareStatement(insertdbSQL);      
       pst.setString(1, name); 
-      pst.setString(2, passwd); 
+      pst.setString(2, passwd);
+      //Random ran = new Random();  		
+      pst.setInt(3, gender);
+      pst.setInt(4, age);
       pst.executeUpdate(); 
     } 
     catch(SQLException e) 
@@ -91,14 +103,15 @@ public class jdbcmysql {
       Close(); 
     } 
   } 
+  
   //刪除Table, 
   //跟建立table很像 
-  public void dropTable() 
+  public void dropTable(String table) 
   { 
     try 
     { 
       stat = con.createStatement(); 
-      stat.executeUpdate(dropdbSQL); 
+      stat.executeUpdate(dropdbSQL+table); 
     } 
     catch(SQLException e) 
     { 
@@ -108,7 +121,8 @@ public class jdbcmysql {
     { 
       Close(); 
     } 
-  } 
+  }//end dropTable() 
+  
   //查詢資料 
   //可以看看回傳結果集及取得資料方式 
   public void SelectTable() 
@@ -117,13 +131,12 @@ public class jdbcmysql {
     { 
       stat = con.createStatement(); 
       rs = stat.executeQuery(selectSQL); 
-      System.out.println("ID\t\tName\t\tPASSWORD"); 
+      System.out.println("ID\t\tName\t\tPASSWORD\tgender\t\tage\t\tfriend"); 
       while(rs.next()) 
-      { 
-        System.out.println(rs.getInt("id")+"\t\t"+ 
-            rs.getString("name")+"\t\t"+rs.getString("passwd")); 
+      { //顯示在eclipse
+        System.out.println(rs.getInt("id")+"\t\t"+rs.getString("name")+"\t\t"+rs.getString("passwd")+"\t\t"+rs.getInt("gender")+"\t\t"+rs.getInt("age")+"\t\t"+rs.getInt("friend")); 
       } 
-    } 
+    }//end try 
     catch(SQLException e) 
     { 
       System.out.println("DropDB Exception :" + e.toString()); 
@@ -132,7 +145,8 @@ public class jdbcmysql {
     { 
       Close(); 
     } 
-  } 
+  }//end SelctTable 
+  
   //完整使用完資料庫後,記得要關閉所有Object 
   //否則在等待Timeout時,可能會有Connection poor的狀況 
   private void Close() 
@@ -154,23 +168,212 @@ public class jdbcmysql {
         pst.close(); 
         pst = null; 
       } 
-    } 
+    }//end try 
     catch(SQLException e) 
     { 
       System.out.println("Close Exception :" + e.toString()); 
     } 
-  } 
+  }//end Close()
+
   
- 
-  public static void main(String[] args) 
+  public static void user_robot() throws IOException{
+	    FileReader fr = new FileReader("user.txt");
+		BufferedReader br = new BufferedReader(fr);
+		String line,tempstring;
+		String[] tempArray= new String[4];
+	    ArrayList myList = new ArrayList();
+	    int i=0,j=0;
+	    while((line = br.readLine())!=null)
+	    {
+	       tempstring = line;
+	      tempArray = tempstring.split(",");
+	        for(i=0;i< tempArray.length;i++)
+	        {          
+	            myList.add(tempArray[i]);
+	            arr[j][i]=tempArray[i];
+	        }
+	        j++;
+	  }	
+  }//end user_robot
+
+  
+  public void createuser(String name,String password) 
+  { 
+    try 
+    { 
+    	stat = con.createStatement(); 
+        stat.executeUpdate("CREATE USER '"+name+"'@'localhost' IDENTIFIED BY '"+password+"';");
+        
+    } 
+    catch(SQLException e) 
+    { 
+      System.out.println("Exception :"+e.toString()); 
+    } 
+    finally 
+    { 
+      Close();      
+    } 
+  }
+  public void grantTouser(String name)
+  {
+	  try 
+	    { 
+	    	stat = con.createStatement(); 
+	        stat.executeUpdate("GRANT ALL PRIVILEGES ON test.* TO '"+name+"'@'localhost';");	        
+	    } 
+	    catch(SQLException e) 
+	    { 
+	      System.out.println("Exception :"+e.toString()); 
+	    } 
+	    finally 
+	    { 
+	      Close(); 
+	    } 
+  }
+  
+  public void dropuser(String username)
+  {
+	  try
+	    { 
+	    	stat = con.createStatement(); 
+	        stat.executeUpdate("DROP USER '"+username+"'@'localhost'");
+	        
+	    } 
+	    catch(SQLException e) 
+	    { 
+	      System.out.println("Exception :"+e.toString()); 
+	    } 
+	    finally 
+	    { 
+	      Close(); 
+	    }
+  }
+  
+  public void inselectbulletin_board(String Author,String writing, int likes){
+	  try 
+	    { 
+	      pst = con.prepareStatement(insertboard);      
+	      pst.setString(1, Author); 
+	      pst.setString(2, writing);
+	      pst.setInt(3, likes);	      
+	      pst.executeUpdate(); 
+	    } 
+	    catch(SQLException e) 
+	    { 
+	      System.out.println("Exception :" + e.toString()); 
+	    } 
+	    finally 
+	    { 
+	      Close(); 
+	    } 
+  }
+  
+  
+  public void selectboard()//顯示文章
+  {
+	  try 
+	    { 
+	      stat = con.createStatement(); 
+	      rs = stat.executeQuery(selectSQL);	      
+	      while(rs.next()) 
+	      { //顯示在eclipse
+	        System.out.println(rs.getString("Author")+"\t\t"+rs.getString("writings")+"\t\t"+rs.getInt("likes")); 
+	      } 
+	    }//end try 
+	    catch(SQLException e) 
+	    { 
+	      System.out.println("DropDB Exception :" + e.toString()); 
+	    } 
+	    finally 
+	    { 
+	      Close(); 
+	    }
+  }
+  public void page_local_login(String username,String password){//登入帳密
+	  try 
+	    { 
+	    	stat = con.createStatement(); 
+	        rs = stat.executeQuery("SELECT `passwd` FROM `user` WHERE name ='"+username+"'");
+	        while(rs.next()) 
+		      { //顯示在eclipse
+		        //System.out.println(rs.getString("passwd")); 
+		        if(password.equals(rs.getString("passwd"))){
+		        	System.out.println("pass");
+		        	
+		        }		        	
+		        else 
+		        	System.out.println("error");
+		      }
+	    } 
+	    catch(SQLException e) 
+	    { 
+	      System.out.println("Exception :"+e.toString()); 
+	    } 
+	    finally 
+	    { 
+	      Close(); 
+	    }
+  }//end page_local_login
+  public void inselectdbbord(String story)//更新讚數
+  {
+	  try 
+	    { 
+	      stat = con.createStatement(); 
+	      stat.executeUpdate(""); 
+	    } 
+	    catch(SQLException e) 
+	    { 
+	      System.out.println(e.toString()); 
+	    } 
+	    finally 
+	    { 
+	      Close(); 
+	    } 
+  }
+  public void like_amount(String story)//更新讚數
+  {
+	  try 
+	    { 
+	      stat = con.createStatement(); 
+	      stat.executeUpdate("UPDATE `bulletin_board` SET`likes`=`likes`+1 WHERE `writings`= '"+story+"'"); 
+	    } 
+	    catch(SQLException e) 
+	    { 
+	      System.out.println(e.toString()); 
+	    } 
+	    finally 
+	    { 
+	      Close(); 
+	    } 
+  }
+  
+  public static void main(String[] args) throws IOException 
   { 
     //測看看是否正常 
-    jdbcmysql test = new jdbcmysql(); 
-    test.dropTable(); 
-    test.createTable(); 
-    test.insertTable("yku", "12356"); 
-    test.insertTable("yku2", "7890"); 
-    test.SelectTable(); 
-  
-  } 
-}
+    jdbcmysql test = new jdbcmysql();    
+    user_robot();//建立一批robot使用者 作為測試
+     
+    test.dropTable(Table_User);//刪除原本的資料表方便跑程式 ,每次都從0開始重建
+    test.dropTable(Table_bulletin_board);
+    test.createTable(createdbSQL_user);//建立資料表
+    test.createTable(createdbSQL_bulletin_board);
+    for(int i=0;i<10;i++){
+		test.insertTable(arr[i][0],arr[i][1],Integer.valueOf(arr[i][2]),Integer.valueOf(arr[i][3]));//將使用者放入table
+	    test.dropuser(arr[i][0]);//刪除使用者
+		test.createuser(arr[i][0],arr[i][1]);//新增使用者
+		test.grantTouser(arr[i][0]);//給予使用者hw4資造庫的權限
+    }
+    test.inselectbulletin_board("ttt123","ttt",1);
+    //test.dropuser(arr[i][0]);//刪除使用者
+    test.SelectTable();   
+    
+    
+  }
+}//end jdbcmysql
+
+//CREATE USER 'test_user'@'%' IDENTIFIED VIA mysql_native_password USING '***';
+//GRANT SELECT, INSERT ON *.* TO 'test_user'@'%' REQUIRE NONE WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0;
+//GRANT ALL PRIVILEGES ON `test`.* TO 'test_user'@'%';
+//給定一個布告欄資料表 常態selet, 作者 內容 讚數
+
+//java a.equal(b);
