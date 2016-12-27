@@ -1,0 +1,77 @@
+package FinallyProgage;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import java.awt.GridLayout;
+import javax.swing.BoxLayout;
+import javax.swing.JToolBar;
+import javax.swing.JButton;
+import java.awt.FlowLayout;
+import javax.swing.JTable;
+import javax.swing.JScrollBar;
+import javax.swing.JTextArea;
+import javax.swing.JList;
+import javax.swing.JTextPane;
+
+public class Cpanel extends JFrame {
+
+	private JPanel contentPane;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Cpanel frame = new Cpanel();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public Cpanel() {
+		C test = new C();
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 450, 300);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		
+		JButton btnNewButton = new JButton("\u65B0\u589E");
+		btnNewButton.setBounds(60, 10, 70, 23);
+		contentPane.add(btnNewButton);
+		
+		JButton btnNewButton_1 = new JButton("\u522A\u9664");
+		btnNewButton_1.setBounds(140, 10, 70, 23);
+		contentPane.add(btnNewButton_1);
+		
+		JButton button = new JButton("\u767B\u51FA");
+		button.setBounds(220, 10, 70, 23);
+		contentPane.add(button);
+		
+		JScrollBar scrollBar = new JScrollBar();
+		scrollBar.setBounds(417, 0, 17, 261);
+		contentPane.add(scrollBar);
+		
+		JList list = new JList();
+		list.setBounds(10, 43, 152, 208);
+		contentPane.add(list);
+		
+		JTextPane textPane = new JTextPane();
+		textPane.setBounds(191, 43, 185, 208);
+		textPane.setText("QQ");
+		contentPane.add(textPane);
+	}
+}
