@@ -1,0 +1,106 @@
+package FinallyProgage;
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JTextField;
+import javax.swing.JPasswordField;
+import javax.swing.JLabel;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+/**
+ * 按下登入btn後 跳到index_panel
+ * 
+ * index_panel
+ * 要先能看到班次 
+ * 要能新增班次 新增後reprint()一次
+ * 		要設定(班次編號?)、行駛日、到哪幾站 幾點從哪發車 之後到各站時間會自己跑好
+ * 要能刪除班次刪除後reprint()一次
+ * 
+ * 最後要能登出
+ * UI四個小時應該OK
+ * 功能3個小時
+ * 
+*/
+
+public class CJframe_test extends JFrame {
+
+	private JPanel contentPane;
+	private JTextField textField;
+	private JPasswordField passwordField;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					CJframe_test frame = new CJframe_test();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public CJframe_test() {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 450, 300);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);//最底下的panel
+		
+		JPanel login_panel = new JPanel();
+		login_panel.setBounds(0, 0, 434, 261);
+		contentPane.add(login_panel);
+		login_panel.setLayout(null);//登入的panel
+		
+		textField = new JTextField();
+		textField.setBounds(160, 107, 200, 21);
+		login_panel.add(textField);
+		textField.setColumns(10);
+		
+		passwordField = new JPasswordField();
+		passwordField.setBounds(160, 153, 197, 21);
+		login_panel.add(passwordField);
+		
+		JLabel lblNewLabel = new JLabel("New label");
+		lblNewLabel.setBounds(70, 110, 46, 15);
+		login_panel.add(lblNewLabel);
+		
+		JLabel lblNewLabel_1 = new JLabel("New label");
+		lblNewLabel_1.setBounds(70, 156, 46, 15);
+		login_panel.add(lblNewLabel_1);
+		
+		
+		JPanel index_panel = new JPanel();
+		index_panel.setBounds(0, 0, 434, 261);
+		contentPane.add(index_panel);
+		index_panel.setLayout(null);
+		
+		JButton btnNewButton = new JButton("New button");
+		btnNewButton.setBounds(10, 74, 87, 23);
+		index_panel.add(btnNewButton);
+		JButton btnNewButton_1 = new JButton("New button");
+		
+		btnNewButton_1.addActionListener(new ActionListener() {	//		
+			public void actionPerformed(ActionEvent arg0) {
+				contentPane.remove(login_panel);
+				contentPane.add(index_panel);
+				contentPane.revalidate();//登入成功後轉換panel
+				contentPane.repaint();// 使用說明 http://mqjing.blogspot.tw/2008/01/java-revalidate-repaint.html
+			}
+			
+		});
+		btnNewButton_1.setBounds(169, 208, 87, 23);
+		login_panel.add(btnNewButton_1);
+	}
+}
